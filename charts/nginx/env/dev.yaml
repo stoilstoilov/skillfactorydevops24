@@ -1,0 +1,7 @@
+replicaCount: 3
+
+namespace: nginx
+
+image:
+  repository: nginx
+  tag: "1.26.4-alpine"
