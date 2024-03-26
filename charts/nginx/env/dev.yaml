@@ -4,4 +4,4 @@ namespace: nginx
 
 image:
   repository: nginx
-  tag: "1.28.4-alpine"
+  tag: "1.26.4-alpine"
