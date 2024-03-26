@@ -1,0 +1,44 @@
+name: Deploy Nginx Helm Chart to EKS
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write   # This is required for requesting the JWT
+  contents: read    # This is required for actions/checkout
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::230605375912:role/GitHubAction-AssumeRoleWithAction
+          role-session-name: GitHubActions
+
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+
+      - name: Set up Kubernetes context
+        env:
+          EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
+        run: |
+          aws eks --region us-east-1 update-kubeconfig --name $EKS_CLUSTER_NAME
+          
+      - name: Deploy Nginx Helm Chart
+        run: |
+          helm upgrade --install nginx ./charts/nginx --kubeconfig /home/runner/.kube/config 
