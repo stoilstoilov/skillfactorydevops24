@@ -20,7 +20,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
           aws-region: us-east-1
-          role-to-assume: arn:aws:iam::230605375912:role/GitHubAction-AssumeRoleWithAction
+          role-to-assume: ${{ secrets.EKS_ROLE }}
           role-session-name: GitHubActions
 
       - name: Install kubectl
@@ -38,7 +38,7 @@ jobs:
           EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
         run: |
           aws eks --region us-east-1 update-kubeconfig --name $EKS_CLUSTER_NAME
-          
+
       - name: Deploy Nginx Helm Chart
         run: |
           helm upgrade --install nginx ./charts/nginx --kubeconfig /home/runner/.kube/config 
